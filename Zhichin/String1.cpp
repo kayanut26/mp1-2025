@@ -9,7 +9,7 @@ struct song {
 	string title;
 };
 
-bool UniquenessCheck(const vector<string>& artists, const string& artist) {  //проверка уникальных исполнителей
+bool UniquenessCheck(const vector<string>& artists, const string& artist) {  //proverka unicalnih ispolnitelei
 	for (auto& x : artists) {
 		if (x == artist)
 			return true;
@@ -17,7 +17,7 @@ bool UniquenessCheck(const vector<string>& artists, const string& artist) {  //п
 	return false;
 }
 
-int SongCount(const vector<song>& songs, const string& artist) {  //подсчёт песен определённого исполнителя
+int SongCount(const vector<song>& songs, const string& artist) {  //podschet pesen opredelennogo ispolnitelya
 	int cnt = 0;
 	for (auto& x : songs) {
 		if (x.artist == artist)
@@ -53,7 +53,7 @@ int main() {
 			i--;
 		}
 	}
-	vector<string> UniqueArtist;  //список уникальный исполнителей
+	vector<string> UniqueArtist;  //spisok unikalnih ispolnitelei
 
 	for (auto& song : list) {
 		if (!UniquenessCheck(UniqueArtist, song.artist))
