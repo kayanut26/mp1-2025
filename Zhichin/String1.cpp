@@ -53,7 +53,7 @@ int main() {
 			i--;
 		}
 	}
-	vector<string> UniqueArtist;  //spisok unikalnih ispolnitelei
+	vector<string> UniqueArtist;  //spisok unikalnih ispolniteleii
 
 	for (auto& song : list) {
 		if (!UniquenessCheck(UniqueArtist, song.artist))
