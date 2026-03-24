@@ -35,7 +35,7 @@ public:
 	}
 
 	// Assignment operator
-	Matrix& operator = (const Matrix& test) {
+	Matrix& operator=(const Matrix& test) {
 		if (this != &test) {
 			MemoryDelete();
 
