@@ -201,6 +201,9 @@ int main() {
 	cout << endl;
 
 }
+
+// класс вектор, оператор==, гаусс
+
 //int main() {
 //	int rows, columns, value, rows1, columns1;
 //	int choice = -1;
