@@ -2,6 +2,130 @@
 #include <string>
 using namespace std;
 
+
+class MatrixException {
+	string message;
+public:
+	MatrixException(string message1) {
+		message = message1;
+	}
+	string getMessage() {
+		return message;
+	}
+};
+
+class VectorException {
+	string message;
+public:
+	VectorException(string message1) {
+		message = message1;
+	}
+	string getMessage() {
+		return message;
+	}
+};
+
+class Vector {
+	int n;
+	double* vector;
+
+public:
+	Vector(int n1) {
+		if (n1 < 0)
+			throw VectorException("the number of elements is negative");
+		n = n1;
+		vector = nullptr;
+		MemoryAllocation();
+	}
+
+	~Vector() {
+		MemoryDelete();
+	}
+
+	Vector(const Vector& vec) {
+		n = vec.n;
+		vector = new double[n];
+		for (int i{ 0 }; i < n; i++)
+			vector[i] = vec.vector[i];
+	}
+
+	Vector& operator=(const Vector& vec) {
+		if (this != &vec) {
+			MemoryDelete();
+
+			n = vec.n;
+			MemoryAllocation();
+			for (int i{ 0 }; i < n; i++) {
+				vector[i] = vec.vector[i];
+			}
+		}
+		return *this;
+	}
+
+	void MemoryAllocation() {
+		if (vector != nullptr)
+			MemoryDelete();
+		vector = new double[n] {};
+	}
+
+	void MemoryDelete() {
+		delete[] vector;
+		vector = nullptr;
+	}
+
+	double& operator[](int i) {
+		if (i < 0 || i >= n)
+			throw VectorException("index out of range");
+		return vector[i];
+	}
+
+	const double& operator[](int i) const {
+		if (i < 0 || i >= n)
+			throw VectorException("index out of range");
+		return vector[i];
+	}
+
+
+	void LenghtVector() {
+		double sum = 0.0;
+		for (int i{ 0 }; i < n; i++) {
+			sum += vector[i] * vector[i];
+		}
+		cout << sqrt(sum) << endl;
+	}
+
+	double operator*(const Vector& vec) {
+		double sklr = 0.0;
+		for (int i{ 0 }; i < n; i++) {
+			sklr += vector[i] * vec.vector[i];
+		}
+		return sklr;
+	}
+
+	Vector operator+(const Vector& vec) {
+		if (n != vec.n)
+			return Vector(0);
+
+		Vector res(n);
+		for (int i{ 0 }; i < n; i++) {
+			res.vector[i] = vector[i] + vec.vector[i];
+		}
+		return res;
+	}
+
+	friend ostream& operator<<(ostream& os, Vector& vec);
+};
+
+ostream& operator<<(ostream& os, Vector& vec) {
+	cout << "(";
+	for (int i{ 0 }; i < vec.n; i++) {
+		cout << vec[i];
+		if (i < vec.n - 1) cout << ", ";
+	}
+	cout << ")" << endl;
+	return os;
+}
+
 class Matrix {
 	int rows;
 	int columns;
@@ -9,106 +133,13 @@ class Matrix {
 
 public:
 	Matrix(int rows1, int columns1) {
+		if (rows1 < 0 || columns1 < 0)
+			throw MatrixException("rows or columns are negative");
 		rows = rows1;
 		columns = columns1;
 		matrix = nullptr;
 		MemoryAllocation();
 	}
-
-	class Vector {
-		int n;
-		double* vector;
-
-	public:
-		Vector(int n1) {
-			n = n1;
-			vector = nullptr;
-			MemoryAllocation();
-		}
-
-		~Vector() {
-			MemoryDelete();
-		}
-
-		Vector(const Vector& vec) {
-			n = vec.n;
-			vector = new double[n];
-			for (int i{ 0 }; i < n; i++)
-				vector[i] = vec.vector[i];
-		}
-
-		Vector& operator=(const Vector& vec) {
-			if (this != &vec) {
-				MemoryDelete();
-
-				n = vec.n;
-				MemoryAllocation();
-				for (int i{ 0 }; i < n; i++) {
-					vector[i] = vec.vector[i];
-				}
-			}
-			return *this;
-		}
-
-		void MemoryAllocation() {
-			if (vector != nullptr)
-				MemoryDelete();
-			vector = new double[n] {};
-		}
-
-		void MemoryDelete() {
-			delete[] vector;
-			vector = nullptr;
-		}
-
-		void AddingComponent(int ind, double comp) {
-			vector[ind] = comp;
-		}
-
-		double GetComponent(int ind) {
-			if (ind >= 0 && ind < n) {
-				return vector[ind];
-			}
-			return 0;
-		}
-
-		void LenghtVector() {
-			double sum = 0.0;
-			for (int i{ 0 }; i < n; i++) {
-				sum += vector[i] * vector[i];
-			}
-			cout << sqrt(sum) << endl;
-		}
-
-		double operator*(const Vector& vec) {
-			double sklr = 0.0;
-			for (int i{ 0 }; i < n; i++) {
-				sklr += vector[i] * vec.vector[i];
-			}
-			return sklr;
-		}
-
-		Vector operator+(const Vector& vec) {
-			if (n != vec.n)
-				return Vector(0);
-
-			Vector res(n);
-			for (int i{ 0 }; i < n; i++) {
-				res.vector[i] = vector[i] + vec.vector[i];
-			}
-			return res;
-		}
-
-		void PrintVector() {
-			cout << "(";
-			for (int i{ 0 }; i < n; i++) {
-				cout << vector[i];
-				if (i < n - 1) cout << ", ";
-			}
-			cout << ")" << endl;
-		}
-
-	};
 
 	~Matrix() {
 		MemoryDelete();
@@ -162,36 +193,6 @@ public:
 				delete[] matrix[i];
 			delete[] matrix;
 			matrix = nullptr;
-		}
-	}
-
-	int AddingElement(int row, int column, double elem) {
-		if (row >= 0 && row < rows && column >= 0 && column < columns) {
-			matrix[row][column] = elem;
-			return 1;
-		}
-		else {
-			cout << "Error: out of range" << endl;
-			return -1;
-		}
-	}
-
-	int PrintElement(int row, int column) {
-		if (row >= 0 && row < rows && column >= 0 && column < columns) {
-			cout << "Element matrix[" << row << "][" << column << "]: " << matrix[row][column] << endl;
-			return 1;
-		}
-		else {
-			cout << "Error: out of range" << endl;
-			return -1;
-		}
-	}
-
-	void PrintMatrix() {
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < columns; j++)
-				cout << matrix[i][j] << "\t";
-			cout << endl;
 		}
 	}
 
@@ -249,6 +250,19 @@ public:
 		return res;
 	}
 
+	double& operator()(int i, int j) {
+		if (i < 0 || i >= rows || j < 0 || j >= columns)
+			throw MatrixException("index out of range");
+		return matrix[i][j];
+	}
+
+	const double& operator()(int i, int j) const {
+		if (i < 0 || i >= rows || j < 0 || j >= columns)
+			throw MatrixException("index out of range");
+		return matrix[i][j];
+	}
+
+	friend ostream& operator<<(ostream& stream, Matrix& matr);
 
 	bool Gauss(Vector& b, Vector& x) {
 		if (rows != columns)
@@ -261,65 +275,93 @@ public:
 					indMaxElem = j;
 				}
 			}
-			if (matrix[indMaxElem][i] == 0) {
+			if (abs(matrix[indMaxElem][i]) < 1e-14) {
 				cout << "Zero matrix" << endl;
 				return false;
 			}
 
-			swap(matrix[i], matrix[indMaxElem]);
 			if (i != indMaxElem) {
-				double temp = b.GetComponent(i);
-				b.AddingComponent(i, b.GetComponent(indMaxElem));
-				b.AddingComponent(indMaxElem, temp);
+				swap(matrix[i], matrix[indMaxElem]);
+				swap(b[i], b[indMaxElem]);
 			}
 
 			double leadingElem = matrix[i][i];
 			for (int j = i; j < columns; j++) {
-				matrix[i][j] = matrix[i][j] / leadingElem;
+				matrix[i][j] /= leadingElem;
 			}
-			b.AddingComponent(i, b.GetComponent(i) / leadingElem);
+			b[i] /= leadingElem;
 
 			for (int k = i + 1; k < rows; k++) {
 				double a = matrix[k][i];
 				for (int j = i; j < columns; j++) {
 					matrix[k][j] -= a * matrix[i][j];
 				}
-				b.AddingComponent(k, b.GetComponent(k) - a * b.GetComponent(i));
+				b[k] -= a * b[i];
 			}
 		}
 
-		x.AddingComponent(rows - 1, b.GetComponent(rows - 1));
+		x[rows - 1] = b[rows - 1];
 		for (int i = rows - 2; i >= 0; i--) {
 			double sum = 0.0;
 			for (int j = i + 1; j < columns; j++) {
-				sum += matrix[i][j] * x.GetComponent(j);
+				sum += matrix[i][j] * x[j];
 			}
-			x.AddingComponent(i, b.GetComponent(i) - sum);
+			x[i] = b[i] - sum;
 		}
 		return true;
 	}
 
 };
 
+ostream& operator<<(ostream& os, Matrix& matr) {
+	for (int i = 0; i < matr.rows; i++) {
+		for (int j = 0; j < matr.columns; j++)
+			os << matr(i, j) << "\t";
+		cout << endl;
+	}
+	return os;
+}
 
 
 int main() {
 
-	Matrix A(3, 3);
-	A.AddingElement(0, 0, 1); A.AddingElement(0, 1, 1); A.AddingElement(0, 2, 1);
-	A.AddingElement(1, 0, 2); A.AddingElement(1, 1, 3); A.AddingElement(1, 2, 1);
-	A.AddingElement(2, 0, 1); A.AddingElement(2, 1, 2); A.AddingElement(2, 2, 3);
+	try {
+		Matrix A(3, 3);
+		Vector b(3);
+		Vector x(3);
 
-	Matrix::Vector b(3);
-	b.AddingComponent(0, 6);
-	b.AddingComponent(1, 14);
-	b.AddingComponent(2, 14);
+		try {
+			Matrix A(3, 3);
+			Vector b(3);
+			Vector x(3);
 
-	Matrix::Vector x(3);
+			A(0, 0) = 1;  A(0, 1) = 1;  A(0, 2) = 1;
+			A(1, 0) = 2;  A(1, 1) = 3;  A(1, 2) = 1;
+			A(2, 0) = 1;  A(2, 1) = 2;  A(2, 2) = 3;
 
-	if (A.Gauss(b, x)) {
-		cout << "Solution: ";
-		x.PrintVector();
+			cout << A << endl;
+
+			b[0] = 6;
+			b[1] = 14;
+			b[2] = 14;
+
+			if (A.Gauss(b, x)) {
+				cout << "Solution: ";
+				cout << x << endl;
+			}
+		}
+		catch (MatrixException& ex) {
+			cerr << "Matrix error: " << ex.getMessage() << endl;
+		}
+		catch (VectorException& ex) {
+			cerr << "Vector error: " << ex.getMessage() << endl;
+		}
+	}
+	catch (MatrixException& ex) {
+		cerr << "Matrix error: " << ex.getMessage() << endl;
+	}
+	catch (VectorException& ex) {
+		cerr << "Vector error: " << ex.getMessage() << endl;
 	}
 
 	return 0;
