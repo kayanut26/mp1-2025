@@ -1,76 +1,56 @@
 #include <iostream>
-
+#include <cmath>
+#include <functional>
 
 using namespace std;
 
-const double PI = 3.14159;
-
-class GeometricObject {
+class TangentMethod {
 private:
-    string name;
-public:
-    GeometricObject(const string& n) : name(n) {}
+    double accuracy;
+    int MaxIter;
 
-    string getName() const {
-        return name;
+public:
+    TangentMethod(double eps = 1e-7, int MaxIter1 = 1000)
+        : accuracy(eps), MaxIter(MaxIter1) {
     }
 
-    void printInfo() {
-        cout << "Geometric object: " << name << endl;
+    double method(function<double(double)> f, function<double(double)> df, double x0) {
+        double x = x0;
+
+        for (int i = 0; i < MaxIter; i++) {
+            double fx = f(x);
+            double dfx = df(x);
+
+            double xNew = x - fx / dfx;
+
+            if (abs(xNew - x) < accuracy) {
+                cout << "Converged after " << i + 1 << " iterations" << endl;
+                return xNew;
+            }
+
+            x = xNew;
+        }
+
+        cout << "Maximum iterations reached!" << endl;
+        return x;
     }
 };
 
-class Sphere : public GeometricObject {
-private:
-    double radius;
-public:
-    Sphere(double r, const string& n) : GeometricObject(n), radius(r) {}
+double func(double x) {
+    return x * x - 4;
+}
 
-    double getSurfaceArea() {
-        return 4 * PI * radius * radius;
-    }
+double derfunc(double x) {
+    return 2 * x;
+}
 
-    double getVolume() {
-        return (4.0 / 3.0) * PI * radius * radius * radius;
-    }
-
-    void printInfo() {
-        cout << "Sphere: " << getName() << endl;
-        cout << "Radius: " << radius << endl;
-        cout << "Surface area: " << getSurfaceArea() << endl;
-        cout << "Volume: " << getVolume() << endl;
-    }
-};
-
-class Parallelepiped : public GeometricObject {
-private:
-    double length, width, height;
-public:
-    Parallelepiped(double l, double w, double h, const string& n) : GeometricObject(n), length(l), width(w), height(h) {}
-
-    double getSurfaceArea() {
-        return 2 * (length * width + length * height + width * height);
-    }
-
-    double getVolume() {
-        return length * width * height;
-    }
-
-    void printInfo() {
-        cout << "Parallelepiped: " << getName() << endl;
-        cout << "Dimensions: " << length << " x " << width << " x " << height << endl;
-        cout << "Surface area: " << getSurfaceArea() << endl;
-        cout << "Volume: " << getVolume() << endl;
-    }
-};
 
 int main() {
-    Sphere ball(5.0, "Ball");
-    ball.printInfo();
+    TangentMethod method1;
+
+    cout << "x^2 - 4 = 0:" << endl;
+    double root1 = method1.method(func, derfunc, 3.0);
+    cout << "Root: " << root1 << endl;
+    cout << "Check: f(" << root1 << ") = " << func(root1) << endl;
     cout << endl;
-
-    Parallelepiped box(2.0, 3.0, 4.0, "Box");
-    box.printInfo();
-
-    return 0;
 }
